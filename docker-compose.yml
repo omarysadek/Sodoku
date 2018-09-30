@@ -1,0 +1,57 @@
+version: '3.4'
+services:
+  db:
+    image: postgres:10.4
+    container_name: db
+    ports:
+      - '8200:5432'
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: osprojectskeleton
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username=dev --host=db --port=5432"]
+      interval: 1m
+      timeout: 20s
+      retries: 3
+    volumes:
+      - ./docker/postgres/config/init_tables.sql:/docker-entrypoint-initdb.d/1-init_table.sql
+    restart: always
+  api:
+    #build: ./docker/api
+    image: omarsadek/osprojectskeleton
+    container_name: api
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: osprojectskeleton
+      DATABASE_USER: dev
+      DATABASE_PASSWORD: dev
+    ports:
+      - '8100:80'
+    volumes:
+      - ./codebase:/var/www/html
+    healthcheck:
+      test: ["CMD-SHELL", "curl -I -s -L http://localhost:80/api/doc || exit 1"]
+      interval: 1m
+      timeout: 20s
+      retries: 3
+    restart: always
+  init_api:
+    #build: ./docker/api
+    image: omarsadek/osprojectskeleton
+    container_name: init_api
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: osprojectskeleton
+      DATABASE_USER: dev
+      DATABASE_PASSWORD: dev
+    volumes:
+      - ./codebase:/var/www/html
+      - ./docker/api/init_api.sh:/usr/local/bin/init_api.sh
+    depends_on:
+      - api
+      - db
+    command:
+      - init_api.sh

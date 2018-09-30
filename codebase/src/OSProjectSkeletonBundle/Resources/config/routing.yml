@@ -1,0 +1,4 @@
+sodoku:
+    path: "/sodoku"
+    methods: POST
+    defaults: { _controller: OSProjectSkeletonBundle:Sodoku:post }
