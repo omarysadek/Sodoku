@@ -10,14 +10,80 @@ class Sodoku
 
     private $sqrt;
 
+    private $pathIndexing = [];
+
+    private $uniqueIndexing = [];
+
     /*
      * @param array $grid
      */
     public function __construct(array $grid)
     {
         $this->grid = $grid;
-        $this->gridSize = count($grid[0]);
-        $this->sqrt = sqrt($this->gridSize);
+        $this->gridSize = (int) count($grid[0]);
+        $this->sqrt = (int) sqrt($this->gridSize);
+
+        $this->pathIndexing();
+        $this->uniqueIndexing();
+    }
+
+    public function uniqueIndexing()
+    {
+        for ($coord = 0; $coord < $this->gridSize; ++$coord) {
+            for ($number = 1; $number <= $this->gridSize; ++$number) {
+                $this->uniqueIndexing['x'.$coord.'-'.$number] = 0;
+                $this->uniqueIndexing['y'.$coord.'-'.$number] = 0;
+            }
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getUniqueIndexing(): array
+    {
+        return $this->uniqueIndexing;
+    }
+
+    public function pathIndexing()
+    {
+        $yWall = $this->sqrt;
+        $xWall = $this->sqrt;
+        $yCoor = 0;
+        $xCoor = 0;
+        while (!($xCoor === ($this->gridSize - 1) && $yCoor === $this->gridSize)) {
+            // int new line square
+            if (($xCoor === ($xWall - 1)) && ($yCoor === $this->gridSize)) {
+                $yWall = $this->sqrt;
+                $xWall += $this->sqrt;
+                $yCoor = 0;
+                $xCoor = ($xWall - $this->sqrt);
+                $this->pathIndexing[] = $pathIndexing;
+                $pathIndexing = [];
+            // right wall && down wall (1 square) init new square
+            } elseif (($xCoor === ($xWall - 1)) && ($yCoor === $yWall)) {
+                $yWall += $this->sqrt;
+                $yCoor = ($yWall - $this->sqrt);
+                $xCoor = ($xWall - $this->sqrt);
+                $this->pathIndexing[] = $pathIndexing;
+                $pathIndexing = [];
+            // right wall inside square
+            } elseif ($yCoor === $yWall) {
+                $yCoor = ($yWall - $this->sqrt);
+                ++$xCoor;
+            }
+            $pathIndexing[] = [$xCoor => $yCoor];
+            ++$yCoor;
+        }
+        $this->pathIndexing[] = $pathIndexing;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPathIndexing(): array
+    {
+        return $this->pathIndexing;
     }
 
     /**
@@ -25,38 +91,41 @@ class Sodoku
      */
     public function isValid(): bool
     {
-        $usedNumbers = $lineBuffer = $toName = [];
+        $lineAdditionBuffer = [];
 
-        for ($x = 0; $x < $this->gridSize; ++$x) {
-            $condition = $this->sqrt;
-            $toName['tmp'] = 0;
-            for ($y = 0; $y < $this->gridSize; ++$y) {
-                $usedNumbers[$this->grid[$x][$y]] = true;
+        foreach ($this->pathIndexing as $key => $squares) {
+            $squareAdditionBuffer = 0;
+            $squareUniqueBuffer = [];
 
-                $lineBuffer['x'.$x] = isset($lineBuffer['x'.$x]) ? $lineBuffer['x'.$x] + $this->grid[$x][$y] : $this->grid[$x][$y];
-                $lineBuffer['y'.$y] = isset($lineBuffer['y'.$y]) ? $lineBuffer['y'.$y] + $this->grid[$x][$y] : $this->grid[$x][$y];
+            foreach ($squares as $square) {
+                $x = key($square);
+                $y = current($square);
+                $value = $this->grid[$x][$y];
 
-                if ($y == ($this->gridSize - 1)) {
-                    $toName[$x][] = $toName['tmp'];
-                } elseif ($y < $condition) {
-                    $toName['tmp'] = $toName['tmp'] + $this->grid[$x][$y];
-                } else {
-                    $toName[$x][] = $toName['tmp'];
-                    $toName['tmp'] = $this->grid[$x][$y];
+                $squareAdditionBuffer += $value;
+                $squareUniqueBuffer[$value] = true;
 
-                    if ($x === ($condition - 1)) {
-                    }
+                $this->uniqueIndexing['x'.$x.'-'.$value] = 1;
+                $this->uniqueIndexing['y'.$y.'-'.$value] = 1;
 
-                    $condition += $this->sqrt;
-                }
+                $lineAdditionBuffer['x'.$x] = isset($lineAdditionBuffer['x'.$x]) ? $lineAdditionBuffer['x'.$x] + $value : $value;
+                $lineAdditionBuffer['y'.$y] = isset($lineAdditionBuffer['y'.$y]) ? $lineAdditionBuffer['y'.$y] + $value : $value;
+            }
+
+            if (count($squareUniqueBuffer) !== $this->gridSize) {
+                return false;
+            }
+
+            if ($squareAdditionBuffer !== array_sum(range(1, $this->gridSize))) {
+                return false;
             }
         }
 
-        if (1 !== count(array_flip($lineBuffer))) {
+        if (1 !== count(array_flip($lineAdditionBuffer))) {
             return false;
         }
 
-        if (count($usedNumbers) !== $this->gridSize) {
+        if (isset($this->uniqueIndexing[0])) {
             return false;
         }
 

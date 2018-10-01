@@ -16,7 +16,7 @@
 #### Using Docker-compose
 
 ```
-docker-compose up;
+sudo docker-compose up;
 ```
 
 #### Using Vagrant
@@ -49,7 +49,7 @@ vagrant up;
 | Application     | Port | Internal Port | URL                               |
 |-----------------|------|---------------|-----------------------------------|
 | api             | 8100 | 80            | http://127.0.0.1:8100/            |
-| db.             | 8200 | 5432          |                                   |
+| db              | 8200 | 5432          |                                   |
 
 #### Database
 
@@ -66,7 +66,7 @@ vagrant up;
 - Containers managment
 
 ```
-docker stop $(docker ps -a -q) ;docker rm $(docker ps -a -q);
+sudo docker stop $(sudo docker ps -a -q) ;sudo docker rm $(sudo docker ps -a -q);
 docker-compose build --no-cache;
 ```
 
@@ -89,8 +89,3 @@ vagrant package --output osprojectskeleton.box
 ```
 
 Then upload it here : https://app.vagrantup.com
-
-
-- documentation of the controller with the api auto gen and get an url http://127.0.0.1:8100/app_dev.php/api/doc
-- documentation of postman https://documenter.getpostman.com/view/316092/RWgjZgij. ferrer.umar@gmail.com
-- Functional test
