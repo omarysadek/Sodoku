@@ -49,7 +49,8 @@ vagrant up;
 
 #### Documentation for endpoints
 
-[https://documenter.getpostman.com/view/316092/RWgjZgij](https://documenter.getpostman.com/view/316092/RWgjZgij)
+[https://documenter.getpostman.com/view/316092/RWgm2142](https://documenter.getpostman.com/view/316092/RWgm2142)
+
 [http://127.0.0.1:8100/coverage/index.html](http://127.0.0.1:8100/coverage/index.html)
 
 ## Unit test
