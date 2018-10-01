@@ -18,8 +18,8 @@ services:
       - ./docker/postgres/config/init_tables.sql:/docker-entrypoint-initdb.d/1-init_table.sql
     restart: always
   api:
-    build: ./docker/api
-    #image: omarsadek/osprojectskeleton
+    #build: ./docker/api
+    image: omarsadek/osprojectskeleton
     container_name: api
     environment:
       DATABASE_HOST: db
@@ -38,8 +38,8 @@ services:
       retries: 3
     restart: always
   init_api:
-    build: ./docker/api
-    #image: omarsadek/osprojectskeleton
+    #build: ./docker/api
+    image: omarsadek/osprojectskeleton
     container_name: init_api
     environment:
       DATABASE_HOST: db
